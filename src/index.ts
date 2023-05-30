@@ -11,6 +11,7 @@ const app = express();
 
 app.use(
   cors({
+    origin: 'https://localhost:8080',
     credentials: true,
   })
 );
@@ -30,6 +31,11 @@ const MONGODB_URL =
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URL);
+
+mongoose.connection.on('connected', () => {
+  console.log('Mongoose connected successfully');
+});
+
 mongoose.connection.on('error', (error: Error) => console.error(error));
 
 app.use('/', router());
