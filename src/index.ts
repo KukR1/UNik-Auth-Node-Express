@@ -6,7 +6,9 @@ import compression from 'compression';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import router from './router';
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
 
 app.use(
@@ -26,8 +28,7 @@ server.listen(8080, () => {
   console.log('Server running on port http://localhost:8080/');
 });
 
-const MONGODB_URL =
-  'mongodb+srv://gelato:gelato@cluster0.e7vn9ee.mongodb.net/?retryWrites=true&w=majority';
+const MONGODB_URL = process.env.MONGODB_URL as string;
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URL);
