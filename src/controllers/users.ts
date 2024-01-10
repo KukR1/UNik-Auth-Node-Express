@@ -41,9 +41,11 @@ export const updateUser = async (
     const { id } = req.params;
     const { username } = req.body;
 
-    if (!username) return res.status(400).json('No username with id ' + id);
+    if (!username) return res.status(400).json('No username with such ID');
 
     const user = await getUserById(id);
+
+    if (!user) return res.status(400).json('No user with such ID');
 
     user.username = username;
     await user.save();
