@@ -34,7 +34,7 @@ mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URL);
 
 mongoose.connection.on('connected', () => {
-  console.log('Mongoose is connected successfully!');
+  console.log('Mongoose is connected successfully! :)');
 });
 
 mongoose.connection.on('error', (error: Error) => console.error(error));
