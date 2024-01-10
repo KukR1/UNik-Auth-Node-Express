@@ -14,6 +14,8 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     if (!user) return res.sendStatus(400);
 
+    if (!user.authentication || !user.authentication.salt || !user.authentication.password) return res.sendStatus(400);
+
     const expectedHash = authentication(user.authentication.salt, password);
 
     if (user.authentication.salt === expectedHash) return res.sendStatus(403);
