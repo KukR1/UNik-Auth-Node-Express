@@ -1,5 +1,5 @@
 import express from 'express';
-import { deleteUserById, getUsers, getUserById } from '../db/users';
+import { deleteUserById, getUsers, getUserById, User, getUserBySessionToken } from '../db/users';
 
 export const getAllUsers = async (
   req: express.Request,
@@ -14,6 +14,19 @@ export const getAllUsers = async (
     return res.status(400).json({ error: 'Cannot get users' });
   }
 };
+
+export const getUser = async (req: express.Request, res: express.Response) => {
+  try {
+    const { sessionToken } = req.params;
+
+    const user = await getUserBySessionToken(sessionToken);
+
+    return res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({ error: 'Cannot get user' });
+  }
+}
 
 export const deleteUser = async (
   req: express.Request,
@@ -39,7 +52,7 @@ export const updateUser = async (
 ) => {
   try {
     const { id } = req.params;
-    const { username } = req.body;
+    const { username, dateOfBirth, address }: User = req.body;
 
     if (!username) return res.status(400).json('No username with such ID');
 
@@ -48,6 +61,13 @@ export const updateUser = async (
     if (!user) return res.status(400).json('No user with such ID');
 
     user.username = username;
+
+    if (dateOfBirth) {
+      user.dateOfBirth = dateOfBirth;
+    }
+    if (address) {
+      user.address = address;
+    }
     await user.save();
 
     return res.status(200).json(user);
