@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-interface User {
+export interface User {
   username: string;
   email: string;
   authentication: {
@@ -8,6 +8,9 @@ interface User {
     salt: string;
     sessionToken?: string;
   };
+  image?: string;
+  address?: string;
+  dateOfBirth?: string;
 }
 
 const UserSchema = new mongoose.Schema<User>({
@@ -18,6 +21,9 @@ const UserSchema = new mongoose.Schema<User>({
     salt: { type: 'string', selected: false },
     sessionToken: { type: 'string', selected: false },
   },
+  image: { type: 'string' },
+  address: { type: 'string' },
+  dateOfBirth: { type: 'string' },
 });
 
 export const UserModel = mongoose.model<User & Document>('User', UserSchema);
