@@ -1,5 +1,5 @@
 import express from 'express';
-import { get, merge } from 'lodash';
+import { merge } from 'lodash';
 import { getUserBySessionToken } from '../db/users';
 
 export const isOwner = async (
@@ -8,18 +8,19 @@ export const isOwner = async (
   next: express.NextFunction
 ) => {
   try {
-    const { id } = req.params;
-    const currentUserId = get(req, 'identity._id') as unknown as string;
+    const { sessionToken } = req.params;
 
-    if (!currentUserId) return res.status(403).json('Forbidden to delete user');
+    const currentUser = await getUserBySessionToken(sessionToken);
 
-    if (currentUserId.toString() !== id)
-      return res.status(403).json('Owner ID mismatch');
+    if (!currentUser) return res.status(403).json({ error: 'Forbidden to delete user' });
+
+    if (currentUser.authentication.sessionToken !== sessionToken)
+      return res.status(403).json({ error: 'Owner ID mismatch' });
 
     next();
   } catch (err) {
     console.error(err);
-    return res.status(400).json({ err: 'Something went wrong' });
+    return res.status(500).json({ error: 'Something went wrong' });
   }
 };
 
