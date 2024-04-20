@@ -4,39 +4,47 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
-import mongoose from 'mongoose';
-import router from './router';
+import { Pool } from 'pg';
 import dotenv from 'dotenv';
+import router from './router';
 
+// Load environment variables from .env file
 dotenv.config();
+
+// Create an instance of express application
 const app = express();
 
-app.use(
-  cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
-  })
-);
+// Database connection setup
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASS,
+  port: parseInt(process.env.DB_PORT ?? '5432'),
+});
 
+pool.connect(err => {
+  if (err) {
+    console.error('Connection error', err);
+  } else {
+    console.log('Connected to PostgreSQL database');
+  }
+});
+
+// Middleware configuration
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-const server = http.createServer(app);
+// Router setup
+app.use('/', router());
 
+// Create and start the HTTP server
+const server = http.createServer(app);
 server.listen(8080, () => {
   console.log('Server running on port http://localhost:8080/');
 });
-
-const MONGODB_URL = process.env.MONGODB_URL as string;
-
-mongoose.Promise = Promise;
-mongoose.connect(MONGODB_URL);
-
-mongoose.connection.on('connected', () => {
-  console.log('Mongoose is connected successfully! :)');
-});
-
-mongoose.connection.on('error', (error: Error) => console.error(error));
-
-app.use('/', router());
