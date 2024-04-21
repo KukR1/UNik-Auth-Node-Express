@@ -4,24 +4,10 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
 import router from './router';
+import { pool } from 'db/db';
 
-// Load environment variables from .env file
-dotenv.config();
-
-// Create an instance of express application
 const app = express();
-
-// Database connection setup
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASS,
-  port: parseInt(process.env.DB_PORT ?? '5432'),
-});
 
 pool.connect(err => {
   if (err) {
