@@ -22,11 +22,13 @@
     "@typescript-eslint/parser": "^6.18.1",
     "eslint": "^8.56.0",
     "nodemon": "^2.0.22",
+    "prisma": "^5.12.1",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@prisma/client": "^5.12.1",
     "@types/bcrypt": "^5.0.2",
     "@types/pg": "^8.11.5",
     "bcrypt": "^5.1.1",

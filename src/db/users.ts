@@ -1,11 +1,3 @@
-// import { pool } from "./db";
-
-// export interface User {
-//   id: number;
-//   username: string;
-//   email: string;
-//   password: string;
-// }
 
 // export async function findUserByEmail(email: string): Promise<User | null> {
 //   const { rows } = await pool.query<User>('SELECT * FROM users WHERE email = $1', [email]);

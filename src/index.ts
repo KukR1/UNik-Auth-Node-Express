@@ -5,17 +5,8 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import cors from 'cors';
 import router from './router';
-import { pool } from 'db/db';
 
 const app = express();
-
-pool.connect(err => {
-  if (err) {
-    console.error('Connection error', err);
-  } else {
-    console.log('Connected to PostgreSQL database');
-  }
-});
 
 // Middleware configuration
 app.use(cors({

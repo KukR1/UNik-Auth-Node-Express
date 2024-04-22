@@ -1,40 +1,81 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
-import { pool } from 'db/db';
+import { prisma } from 'db/db';
+
+interface RegisterRequestBody {
+  email: string;
+  username: string;
+  fullname: string;
+  password: string;
+}
 
 export const register = async (req: express.Request, res: express.Response) => {
-  const { email, password, name } = req.body;
+  const { email, password, username, fullname } = req.body as RegisterRequestBody;
 
-  // Check if any required fields are missing or not strings
-  if (!email || !password || !name || typeof password !== 'string') {
-    return res.sendStatus(400); // Bad Request
+  if (!email || !password || !username || typeof email !== 'string' || typeof password !== 'string' || typeof username !== 'string' || (fullname && typeof fullname !== 'string')) {
+    return res.status(400).send("Invalid input data");
   }
 
   try {
-    // Check if the user already exists
-    const userExist = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (userExist.rows.length > 0) {
-      return res.status(409).send('User already exists'); // Conflict
+    const userExist = await prisma.user.findUnique({
+      where: { email }
+    });
+
+    if (userExist) {
+      return res.status(409).send('User already exists');
     }
 
-    // Hash password
-    const saltRounds = 10; // Cost factor for hashing
+    const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Insert new user into the database
-    const result = await pool.query(
-      'INSERT INTO users (email, password, name) VALUES ($1, $2, $3) RETURNING id, name, email;',
-      [email, hashedPassword, name]
-    );
+    const user = await prisma.user.create({
+      data: {
+        email,
+        username,
+        fullname,
+        password: hashedPassword
+      }
+    });
 
-    // Send success response
     res.status(201).json({
-      id: result.rows[0].id,
-      name: result.rows[0].name,
-      email: result.rows[0].email
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      fullname: user.fullname
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send('Server error'); // Internal Server Error
+    res.status(500).send('Server error');
   }
-}; 
+};
+
+// export const login = async (req: express.Request, res: express.Response) => {
+//   const { email, password } = req.body;
+
+//   if (!email || !password || typeof password !== 'string') {
+//     return res.sendStatus(400);
+//   }
+
+//   try {
+//     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+
+//     if (result.rows.length === 0) {
+//       return res.status(401).send('Email or password is incorrect');
+//     }
+
+//     const user = result.rows[0];
+//     const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+//     if (!isPasswordMatch) {
+//       return res.status(401).send('Email or password is incorrect');
+//     }
+
+//     res.status(200).json({
+//       name: user.name,
+//       email: user.email
+//     });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Server error'); // Internal Server Error
+//   }
+// }
